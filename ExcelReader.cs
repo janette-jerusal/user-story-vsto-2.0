@@ -8,41 +8,35 @@ namespace UserStorySimilarityAddIn
 {
     public static class ExcelReader
     {
-        public static DataTable ReadExcelToDataTable(string filePath)
+        public static DataTable ReadExcel(string filePath)
         {
+            var table = new DataTable();
+
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            var dataTable = new DataTable();
-
             using (var package = new ExcelPackage(new FileInfo(filePath)))
             {
-                ExcelWorksheet worksheet = package.Workbook.Worksheets[0]; // Read the first sheet
-
-                if (worksheet.Dimension == null)
-                    return dataTable;
+                var worksheet = package.Workbook.Worksheets[0];
 
                 // Add columns
-                for (int col = 1; col <= worksheet.Dimension.End.Column; col++)
+                for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
                 {
-                    var colName = worksheet.Cells[1, col].Text.Trim();
-                    if (string.IsNullOrEmpty(colName))
-                        colName = $"Column{col}";
-                    dataTable.Columns.Add(colName);
+                    table.Columns.Add(worksheet.Cells[1, col].Text);
                 }
 
                 // Add rows
-                for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+                for (int row = worksheet.Dimension.Start.Row + 1; row <= worksheet.Dimension.End.Row; row++)
                 {
-                    var dataRow = dataTable.NewRow();
-                    for (int col = 1; col <= worksheet.Dimension.End.Column; col++)
+                    var newRow = table.NewRow();
+                    for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
                     {
-                        dataRow[col - 1] = worksheet.Cells[row, col].Text;
+                        newRow[col - 1] = worksheet.Cells[row, col].Text;
                     }
-                    dataTable.Rows.Add(dataRow);
+                    table.Rows.Add(newRow);
                 }
             }
 
-            return dataTable;
+            return table;
         }
     }
 }
+
