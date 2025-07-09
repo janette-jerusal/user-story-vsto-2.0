@@ -8,18 +8,17 @@ namespace UserStorySimilarityAddIn
 {
     public static class ExcelWriter
     {
-        public static void WriteDataTableToExcel(DataTable dataTable, string filePath)
+        public static void WriteExcel(DataTable dataTable, string filePath)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
             using (var package = new ExcelPackage())
             {
-                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Similarity Results");
+                var worksheet = package.Workbook.Worksheets.Add("Matches");
 
                 // Add headers
-                for (int col = 0; col < dataTable.Columns.Count; col++)
+                for (int i = 0; i < dataTable.Columns.Count; i++)
                 {
-                    worksheet.Cells[1, col + 1].Value = dataTable.Columns[col].ColumnName;
+                    worksheet.Cells[1, i + 1].Value = dataTable.Columns[i].ColumnName;
                 }
 
                 // Add data
@@ -31,10 +30,11 @@ namespace UserStorySimilarityAddIn
                     }
                 }
 
-                // Save
-                var fileInfo = new FileInfo(filePath);
-                package.SaveAs(fileInfo);
+                // Save to file
+                FileInfo file = new FileInfo(filePath);
+                package.SaveAs(file);
             }
         }
     }
 }
+
